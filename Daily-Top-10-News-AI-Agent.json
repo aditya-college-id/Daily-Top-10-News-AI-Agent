@@ -1,0 +1,245 @@
+{
+  "name": "Daily Top 10 News AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://newsdata.io/api/1/latest?country=in&language=en&size=10",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-ACCESS-KEY",
+              "value": "pub_c156b34a46884a499fc7f6754dc3c1bb"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "f0a8bc6d-100a-46df-958e-8c70a62c9bb4",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional news editor.\n\nCreate a clean, professional, email-style news report from the provided news articles.\n\nInstructions:\n\n1. Select the top 5 most important news articles.\n2.Add this heading at the top:\nHere's the top news:\n3.For each news item:\n\n   * Use the article title as the headline.\n   * Below it, write a precise summary using the article description/content.\n4. Keep every summary within 2–3 precise and professional lines.\n5. Use simple language that normal readers can easily understand.\n6. Leave exactly one empty line between each news item.\n7. Format the response like a professional daily newsletter or email.\n8. Do NOT output JSON.\n9. Do NOT use markdown symbols like **, ##, or bullet points.\n10. Keep the formatting clean and readable.\n11. bold every headline.\nOutput Format Example:\n\nTop 5 News:\n\n1. Team A Wins Championship\n   Team A secured a dramatic victory after defeating Team B in the final match. The win marks their third championship title in five years.\n\n2. Star Player Suffers Injury\n   The national team received a major setback after its captain suffered an ankle injury during training ahead of the tournament.\n\nNews Data:\n{{ JSON.stringify($json.results) }}\n",
+        "messages": {
+          "messageValues": []
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        416,
+        0
+      ],
+      "id": "548c92eb-d36c-41f2-b7ee-1e543bd086e7",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "sendTo": "adityayadav.ug23@nsut.ac.in",
+        "subject": "=Today's News Update - {{ $now.format(\"dd LLL yyyy\") }}",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "ddbeb1fe-7188-46ee-9d7f-5af5b67a9231",
+      "name": "Send a message",
+      "webhookId": "6963ed92-1ca8-46a1-a866-4d995f60fe6a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QyoDPQg2akEOIwxd",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.5",
+          "mode": "list",
+          "cachedResultName": "gpt-5.5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        208
+      ],
+      "id": "8f273b18-e601-4409-b1d3-565877788355",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert news editor and HTML formatter.\n\nYour task is to transform the provided news into a clean, professional HTML email format.\n\nRules:\n\n1. Add this heading at the top in bold:\n   Top 5 News:\n\n2. For every news item:\n\n   * Keep numbering format (1, 2, 3...).\n   * Make ONLY the news title bold using HTML  tag.\n   * Remove any markdown formatting such as ** or ##.\n   * Keep summaries concise (maximum 2–3 short lines).\n   * Add proper spacing between every news item using HTML line breaks ().\n\n3. Output Requirements:\n\n   * Output must be clean HTML only.\n   * Do NOT use markdown.\n   * Do NOT include triple backticks.\n   * Do NOT add explanations or extra text.\n   * Do NOT repeat \"Here’s the top news\".\n   * Keep formatting neat and email-friendly.\n\nExpected Output Format:\n\nTop 5 News:\n\n1. News Heading\n   Summary line 1\n   Summary line 2\n\n2. News Heading\n   Summary line 1\n   Summary line 2\n\nInput News:\n{{ $json.text }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        768,
+        0
+      ],
+      "id": "cdcab164-8e39-4eb4-9d1f-5c754697ca81",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-chat-latest",
+          "mode": "list",
+          "cachedResultName": "gpt-5-chat-latest"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        208
+      ],
+      "id": "46ab4530-bb52-4388-bbba-afb2b19d3d32",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "87a18b68-faff-460a-a35f-3d93175d2f60",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timezone": "Asia/Kolkata",
+    "saveExecutionProgress": true
+  },
+  "versionId": "605faf63-e180-4004-817d-20b0dedee384",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6401783a0b2ee42cc5aad812de0e486a8497df84800be12584128eb833edd7b9"
+  },
+  "id": "PGKOv8MwPHqjQLTs",
+  "tags": []
+}
