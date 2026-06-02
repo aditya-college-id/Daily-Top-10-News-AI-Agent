@@ -37,7 +37,7 @@ Runs daily at 1:00 AM IST.
 
 ## Email Report 
 
-![Email Report](screenshots/Email-report.png)
+![Email Report](screenshots/email-report.png)
 
 ## Author
 
