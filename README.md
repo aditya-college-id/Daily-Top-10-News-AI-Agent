@@ -29,6 +29,16 @@ Schedule Trigger
 
 Runs daily at 1:00 AM IST.
 
+## Screenshots
+
+### Workflow Overview
+
+![Workflow](screenshots/workflow-overview.png)
+
+## Email Report 
+
+![Email Report](screenshots/Email-report.png)
+
 ## Author
 
 Aditya Kumar Yadav
